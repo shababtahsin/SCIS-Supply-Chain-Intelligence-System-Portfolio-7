@@ -676,7 +676,6 @@ The strongest skills demonstrated are:
 
 ## Project Status
 
-**Complete analytical workflow: Chapters 3–12**
 
 - [x] Extract
 - [x] Transform
