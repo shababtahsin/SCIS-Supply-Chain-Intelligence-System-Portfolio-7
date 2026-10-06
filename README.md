@@ -1,25 +1,19 @@
-# Southern Cross Industrial Supply (SCIS) — End-to-End Supply Chain Analytics
+````markdown
+# Southern Cross Industrial Supply (SCIS) — Supply Chain Intelligence System
 
-> **SQL Server portfolio project:** an end-to-end supply-chain analysis covering data ingestion, ETL, reconciliation, modelling, exploratory analysis, KPI development, root-cause analysis, and business-impact quantification.
+### SQL Server · Supply Chain Analytics · KPI Development · Root-Cause Analysis
 
----
+SCIS is an end-to-end supply chain analytics project built in **Microsoft SQL Server and SSMS**.
 
-## Executive Summary
+The project uses **25 CSV files containing 196,460 rows** across customer orders, procurement, suppliers, inventory, production, warehousing, logistics, quality, returns, contracts, foreign exchange and bill-of-materials data.
 
-Southern Cross Industrial Supply (SCIS) is a multi-domain supply-chain analytics project built in **Microsoft SQL Server / SSMS**. The project integrates **25 CSV source files containing 196,460 rows** across customer demand, procurement, suppliers, inventory, production, warehousing, logistics, quality, returns, contracts, FX, and bill-of-materials data.
+The goal was to take a large group of connected operational tables and answer a simple question:
 
-The objective was not simply to write isolated SQL queries. The project builds a controlled analytical workflow:
+> **Where is the supply chain performing poorly, why is it happening, and how important is the problem?**
 
-**Raw CSVs → Staging → Data Quality & Transformation → Final SQL Tables → Validation → Data Model → EDA → KPI Framework → Root-Cause Analysis → Business Impact**
+The workflow covers the full analysis process:
 
-The analysis is designed to answer management questions such as:
-
-- Are customer orders being fulfilled completely and on time?
-- Where are inventory shortages and working-capital exposures occurring?
-- Which supplier and procurement behaviours create operational risk?
-- Where are production, quality, warehouse, and logistics bottlenecks?
-- Which exceptions are financially or operationally material?
-- Which issues should management investigate first?
+**Raw Data → Staging → Cleaning & Validation → Final Tables → EDA → KPIs → Root Causes → Business Impact**
 
 ---
 
@@ -27,53 +21,55 @@ The analysis is designed to answer management questions such as:
 
 | Item | Scope |
 |---|---:|
-| Source files | **25 CSVs** |
-| Source rows | **196,460** |
+| Source Files | **25 CSVs** |
+| Source Rows | **196,460** |
 | Products | **150** |
 | Suppliers | **60** |
-| Facilities | **5** — 4 distribution centres + 1 manufacturing plant |
-| Customer orders | **9,000** |
-| Customer order lines | **27,073** |
-| Purchase orders | **6,500** |
-| Purchase order lines | **22,737** |
+| Facilities | **5** |
+| Customer Orders | **9,000** |
+| Customer Order Lines | **27,073** |
+| Purchase Orders | **6,500** |
+| Purchase Order Lines | **22,737** |
 | Shipments | **5,907** |
-| Inventory snapshots | **42,900** |
-| Production orders | **1,800** |
-| Quality inspections | **10,000** |
-| Core order / planning period | **Jan 2025 – Jun 2026** |
-| Primary platform | **Microsoft SQL Server / SSMS** |
+| Inventory Snapshots | **42,900** |
+| Production Orders | **1,800** |
+| Quality Inspections | **10,000** |
+| Main Analysis Period | **Jan 2025 – Jun 2026** |
+| Platform | **Microsoft SQL Server / SSMS** |
 
 ---
 
-## Business Problem
+# Business Problem
 
-SCIS operates across several connected supply-chain processes, but performance cannot be understood reliably by looking at any one table in isolation.
+Supply chain problems rarely come from one table or one department.
 
-A late customer shipment may originate from:
+For example, a late customer delivery might be caused by:
 
-- supplier delay,
-- insufficient inventory,
-- inaccurate forecasting,
-- production disruption,
-- quality failure,
-- warehouse execution,
-- carrier performance,
-- or a combination of these factors.
+- a supplier delivering late
+- low inventory
+- poor demand forecasting
+- production downtime
+- quality problems
+- warehouse delays
+- transport delays
 
-The project therefore treats supply-chain analysis as an **end-to-end business system**, not a collection of disconnected KPIs.
+or several of these happening together.
 
-### Analytical objectives
+This project therefore looks at the supply chain as **one connected system**.
 
-1. Build a reliable SQL analytical foundation from the raw files.
-2. Protect the analysis from duplicate rows, incorrect joins, invalid denominators, and mixed data grains.
-3. Establish repeatable KPIs across major supply-chain functions.
-4. Identify operational exceptions and concentrations of risk.
-5. Trace poor performance toward plausible root causes.
-6. Translate operational issues into financial, working-capital, service, capacity, and risk impact.
+The main questions were:
+
+- Are customer orders being fulfilled fully and on time?
+- Where are inventory shortages happening?
+- Are suppliers and purchase orders performing reliably?
+- Are production and quality problems affecting supply?
+- Are warehouses and carriers creating delays?
+- Where is working capital tied up?
+- Which operational problems are large enough to matter?
 
 ---
 
-## Data Architecture
+# Data Architecture
 
 ```mermaid
 flowchart LR
@@ -85,39 +81,39 @@ flowchart LR
     F --> G[Exploratory Data Analysis]
     G --> H[KPI Framework]
     H --> I[Root-Cause Analysis]
-    I --> J[Business Impact & Materiality]
+    I --> J[Business Impact]
 ```
 
-### SQL-layer design
+## SQL Layers
 
 | Layer | Purpose |
 |---|---|
-| **Raw CSV** | Original source data retained outside SQL Server |
-| **`stg` schema** | Landing area for source data with minimal alteration |
-| **Transformation / QA** | Validate strings, numbers, dates, relationships, nulls, and business keys |
-| **`dbo` tables** | Final analytical tables |
-| **Analytical SQL** | EDA, KPIs, exceptions, root causes, and impact analysis |
+| **Raw CSV Files** | Original source data |
+| **`stg` Schema** | Initial landing area with minimal changes |
+| **Transformation & QA** | Cleaning, validation and relationship checks |
+| **`dbo` Tables** | Final analytical tables |
+| **Analytical SQL** | EDA, KPI calculation, root-cause and impact analysis |
 
-The staging layer is deliberately separated from the final analytical layer so that source values can be reconciled before business calculations are performed.
+I kept the staging and final tables separate so that transformed data could always be checked against the original source.
 
 ---
 
-## Dataset Coverage
+# Dataset Coverage
 
-| Domain | Main files | Rows |
+| Domain | Main Data | Rows |
 |---|---|---:|
-| Master & reference | regions, warehouses, products, suppliers, supplier-products, carriers, contracts, BOM, FX | **1,132** |
-| Demand & customer orders | customer orders, order lines, demand forecast | **41,473** |
-| Procurement & receiving | purchase orders, PO lines, goods receipts | **46,981** |
-| Inventory | inventory snapshots, stock movements | **60,900** |
-| Production | production orders, production events, downtime | **9,109** |
-| Quality & returns | quality inspections, returns | **11,039** |
-| Logistics | shipments, shipment lines | **23,642** |
-| Warehouse operations | warehouse operations | **2,184** |
+| Master & Reference | Products, suppliers, warehouses, carriers, contracts, BOM, FX | **1,132** |
+| Demand & Customer Orders | Orders, order lines, forecasts | **41,473** |
+| Procurement & Receiving | Purchase orders, PO lines, receipts | **46,981** |
+| Inventory | Inventory snapshots and stock movements | **60,900** |
+| Production | Production orders, events and downtime | **9,109** |
+| Quality & Returns | Inspections and returns | **11,039** |
+| Logistics | Shipments and shipment lines | **23,642** |
+| Warehouse Operations | Warehouse activity | **2,184** |
 | **Total** | **25 files** | **196,460** |
 
 <details>
-<summary><strong>Source files</strong></summary>
+<summary><strong>View all source files</strong></summary>
 
 - `bom.csv`
 - `carriers.csv`
@@ -149,90 +145,96 @@ The staging layer is deliberately separated from the final analytical layer so t
 
 ---
 
-## End-to-End SQL Workflow
+# SQL Workflow
 
-The project is organised as a progressive analytical workflow rather than a single monolithic query.
+The project is divided into separate stages so that each part of the analysis can be checked before moving forward.
 
-| Chapter | Stage | Purpose |
+| Chapter | Stage | What Happens |
 |---|---|---|
-| **3** | Extract | Load CSV data into staging tables using `BULK INSERT` |
-| **4** | Transform | Profile and validate nulls, duplicates, text, numeric values, dates, relationships, currencies, and grain |
-| **5** | Load | Populate final analytical tables and reconcile row counts |
-| **6** | Validation & Reconciliation | Test keys, orphans, joins, quantities, denominators, and header/line multiplication |
-| **7** | Data Modelling | Document table grain and one-to-many relationships |
-| **8** | EDA | Explore demand, procurement, inventory, logistics, production, quality, returns, and warehouse activity |
-| **9** | Supply-Chain Analysis | Perform detailed functional analysis across the full operating model |
-| **10** | KPI Development | Convert analytical logic into repeatable business KPIs |
-| **11** | Root-Cause Analysis | Investigate drivers behind poor-performing areas |
-| **12** | Business Impact | Quantify financial, service, productivity, capacity, working-capital, and risk exposure |
+| **3** | Extract | Load CSV files into SQL Server using `BULK INSERT` |
+| **4** | Transform | Check nulls, duplicates, dates, text, numbers, currencies and relationships |
+| **5** | Load | Populate the final analytical tables |
+| **6** | Validate | Check keys, joins, quantities, row counts and denominators |
+| **7** | Model | Document table grain and relationships |
+| **8** | EDA | Explore the main supply chain processes |
+| **9** | Analysis | Analyse inventory, suppliers, logistics, production and fulfilment |
+| **10** | KPIs | Build repeatable business measures |
+| **11** | Root Causes | Investigate why poor performance is occurring |
+| **12** | Business Impact | Estimate financial and operational exposure |
 
 ---
 
-## Data Quality & Validation
+# Data Quality & Validation
 
-A major part of the project is protecting business conclusions from bad analytical mechanics.
+A large part of this project was making sure the SQL calculations were based on reliable joins and valid data.
 
-### Controls implemented
+Checks included:
 
-- staging-to-final **row-count reconciliation**
-- primary and business-key uniqueness tests
+- staging-to-final row counts
 - duplicate detection
-- null profiling
-- string trimming and category standardisation
-- suspicious numeric-value checks
-- impossible or suspicious date-sequence checks
-- orphan-record checks
-- master-to-child relationship validation
-- PO header / line grain checks
-- shipment header / line grain checks
-- join-multiplication tests
-- currency validation
-- FX-rate coverage checks
-- forecast-version separation
-- signed inventory-movement validation
-- KPI denominator validation
-
-### Examples of raw-data issues identified
-
-The source-data review identified anomalies that were **flagged rather than silently overwritten**, including:
-
-- **8** purchase-order lines with negative ordered quantity
-- **8** purchase-order lines with missing unit price
-- **12** PO lines with missing expected delivery date
-- **6** goods-receipt rows with missing received quantity
-- **6** customer orders with missing requested delivery date
-- inconsistent whitespace/casing in several categorical values
-
-This approach preserves source traceability while preventing questionable records from being mistaken for normal business behaviour.
+- null checks
+- primary and business-key checks
+- text cleaning
+- unusual numeric values
+- suspicious date sequences
+- orphan records
+- master-to-detail relationships
+- purchase-order header and line grain
+- shipment header and line grain
+- join multiplication
+- currency checks
+- FX coverage
+- forecast versions
+- inventory movement signs
+- KPI denominators
 
 ---
 
-## Data-Grain Controls
+## Examples of Data Issues Found
 
-Correct data grain is critical in this project.
+The raw data contained several issues that were flagged for investigation rather than silently changed.
+
+Examples include:
+
+- **8** PO lines with negative ordered quantity
+- **8** PO lines with missing unit price
+- **12** PO lines with missing expected delivery date
+- **6** goods receipt rows with missing received quantity
+- **6** customer orders with missing requested delivery date
+- inconsistent spacing and casing in several text fields
+
+Keeping these problems visible preserves the audit trail and avoids pretending that questionable data is normal.
+
+---
+
+# Why Data Grain Matters
+
+One of the most important parts of the project was checking the **grain** of each table before joining data.
 
 For example:
 
-- `shipments` is **shipment-level**
-- `shipment_lines` is **line-level**
+- `shipments` contains one row per shipment
+- `shipment_lines` contains several rows per shipment
 
-A shipment may contain several lines. Joining the two tables and then summing `freight_cost_aud` would repeat the same shipment freight multiple times.
+If shipment-level freight is joined to shipment lines and then summed, the same freight cost gets repeated several times.
 
-The project explicitly tests for this type of **join multiplication** and keeps freight calculations at shipment grain.
+The project specifically checks for this type of **join multiplication**.
 
-The same principle is applied to:
+The same issue can occur with:
 
-- customer order headers vs order lines,
-- purchase order headers vs PO lines,
-- goods receipts,
-- production orders vs production events,
-- and forecast observations.
+- customer orders vs order lines
+- purchase orders vs PO lines
+- production orders vs production events
+- shipments vs shipment lines
+- forecasts with multiple versions
+
+This is why table grain is documented before KPI calculations are performed.
 
 ---
 
-## KPI Framework
+# KPI Framework
 
-### Inventory
+## Inventory
 
 - Average inventory
 - Inventory value
@@ -241,29 +243,36 @@ The same principle is applied to:
 - Stockout rate
 - Reorder-point breach rate
 - Safety-stock breach rate
-- Slow / fast-moving inventory
+- Slow-moving inventory
+- Fast-moving inventory
 - Dead-stock exposure
 - ABC classification
 
-### Demand & Forecast
+---
+
+## Demand & Forecasting
 
 - Monthly demand
 - Demand variability
 - Seasonality
-- Forecast vs actual
+- Forecast vs actual demand
 - Absolute forecast error
 - Forecast error by version
 
-### Procurement
+---
 
-- Procurement spend by currency
+## Procurement
+
+- Procurement spend
 - Contract compliance
-- Maverick / non-compliant spend
+- Non-compliant spend
 - Purchase-price spread
 - Purchase-price variance
 - Supplier concentration
 
-### Suppliers
+---
+
+## Suppliers
 
 - Lead time
 - Lead-time variability
@@ -273,44 +282,54 @@ The same principle is applied to:
 - Supplier concentration
 - Single-source exposure
 
-### Customer Fulfilment
+---
+
+## Customer Fulfilment
 
 - Fill rate
 - Backorder rate
-- On-time delivery rate
+- On-time delivery
 - Late-delivery rate
 - Average days late
 - Perfect-order rate
 - Order-cycle time
 
-### Warehouse
+---
+
+## Warehouse
 
 - Throughput
 - Lines picked per labour hour
 - Pick-error rate
 - Capacity utilisation
 
-### Production
+---
+
+## Production
 
 - Production throughput
 - Yield
 - Scrap rate
 - Schedule adherence
-- Production cycle time
+- Cycle time
 - Downtime
 - Scrap-value exposure
 
-### Quality
+---
+
+## Quality
 
 - Defect rate
 - Inspection failure rate
 - Product-level defect rate
-- Defect rate by source
-- Defect-type profile
+- Defect source
+- Defect type
 
-### Logistics & Returns
+---
 
-- Total freight
+## Logistics & Returns
+
+- Freight cost
 - Average freight per shipment
 - Freight by carrier
 - Carrier on-time performance
@@ -320,177 +339,234 @@ The same principle is applied to:
 - Return rate
 - Return-value exposure
 
-### End-to-End Risk
-
-- SLA breaches
-- single-source stockout exposure
-- operational exception counts
-- product bottleneck signals
-- materiality ranking
-
 ---
 
-## Selected Analytical Results
+# Selected Results
 
-The following figures were calculated from the supplied source data using the KPI definitions implemented in the project.
+The following results were calculated from the supplied dataset using the KPI definitions in the SQL project.
 
-| Area | Result | Interpretation |
+| Area | Result | What It Shows |
 |---|---:|---|
-| **Overall fill rate** | **64.13%** | A material share of ordered quantity was not represented as shipped quantity under the project definition |
-| **Backorder rate** | **35.87%** | Equivalent to **879,544 units** of unfulfilled quantity |
-| **On-time delivery** | **34.11%** | Delivery timeliness is a major service-level constraint |
-| **Late-delivery rate** | **65.89%** | Late shipments averaged **4.51 days late** |
-| **Perfect-order rate** | **28.92%** | Defined here as fully shipped with no return event |
-| **Contract-compliant PO lines** | **75.06%** | Roughly one quarter of PO lines are outside the compliance flag |
-| **Inventory stockout snapshots** | **8.09%** | Repeated zero/negative on-hand positions require product and site investigation |
-| **Below reorder point** | **55.03%** | Replenishment thresholds are breached frequently across snapshot records |
-| **Below safety stock** | **26.34%** | Indicates recurring inventory-resilience pressure |
-| **Single-source products** | **33** | All 33 experienced at least one stockout snapshot in the supplied data |
-| **Average inventory value** | **A$6.90M** | Working-capital proxy based on average on-hand quantity × standard cost |
-| **Production yield** | **96.27%** | Production output is generally high-yield despite material scrap exposure |
-| **Scrap rate** | **3.73%** | Standard-cost scrap exposure is approximately **A$5.41M** |
-| **Recorded downtime** | **2,965.1 hours** | Provides a basis for reason- and product-level capacity analysis |
-| **Quantity defect rate** | **4.15%** | Defective units as a share of inspected units |
-| **Inspection failure rate** | **30.04%** | Failure-event frequency is materially higher than the unit defect rate |
-| **Total freight cost** | **A$3.63M** | Retained at shipment grain to avoid line-level duplication |
-| **Return rate** | **0.66%** | Returned quantity as a share of shipped quantity |
-| **Return value exposure** | **A$2.16M** | Standard-cost proxy, not final accounting loss |
+| **Fill Rate** | **64.13%** | A large amount of ordered quantity was not represented as shipped quantity |
+| **Backorder Rate** | **35.87%** | Equivalent to **879,544 units** under the project definition |
+| **On-Time Delivery** | **34.11%** | Delivery reliability is a major issue |
+| **Late-Delivery Rate** | **65.89%** | Late shipments averaged **4.51 days late** |
+| **Perfect-Order Rate** | **28.92%** | Fully shipped orders without a return event |
+| **Contract-Compliant PO Lines** | **75.06%** | Around one-quarter fall outside the compliance flag |
+| **Stockout Snapshots** | **8.09%** | Repeated zero or negative stock positions appear in the data |
+| **At / Below Reorder Point** | **55.03%** | Replenishment thresholds are frequently reached |
+| **Below Safety Stock** | **26.34%** | Indicates recurring inventory pressure |
+| **Single-Source Products** | **33** | All 33 recorded at least one stockout snapshot |
+| **Average Inventory Value** | **A$6.90M** | Working-capital proxy |
+| **Production Yield** | **96.27%** | Production output is generally high-yield |
+| **Scrap Rate** | **3.73%** | Around **A$5.41M** of standard-cost scrap exposure |
+| **Recorded Downtime** | **2,965.1 hours** | Useful for capacity and cause analysis |
+| **Quantity Defect Rate** | **4.15%** | Defective units as a share of inspected units |
+| **Inspection Failure Rate** | **30.04%** | Failed inspection events occur much more often than defective units |
+| **Total Freight Cost** | **A$3.63M** | Calculated at shipment grain |
+| **Return Rate** | **0.66%** | Returned quantity as a share of shipped quantity |
+| **Return Value Exposure** | **A$2.16M** | Standard-cost proxy |
 
-> **Important:** several impact measures are deliberately treated as **exposure proxies**, not booked financial losses. Procurement currencies are also kept separate unless an explicit FX conversion is applied.
-
----
-
-## Key Findings
-
-### 1. Customer service is the clearest end-to-end pressure point
-
-The combination of a **64.13% fill rate** and **65.89% late-delivery rate** indicates that service performance cannot be explained by a single process metric. The project therefore traces fulfilment problems across inventory, suppliers, production, warehousing, and logistics rather than treating late delivery as an isolated carrier issue.
-
-### 2. Inventory availability and sourcing resilience are linked
-
-Stockouts occurred in **8.09% of inventory snapshots**, while **33 products are single-source**. Every one of those single-source products recorded at least one stockout snapshot, creating a clear candidate set for sourcing and replenishment review.
-
-### 3. Replenishment thresholds require attention
-
-More than half of product/site inventory snapshots were at or below reorder point, and **26.34%** were below safety stock. The SQL analysis uses product, warehouse, movement, demand, and supplier relationships to distinguish chronic shortage risk from isolated low-stock events.
-
-### 4. Production output is strong, but losses remain financially material
-
-Overall production yield is **96.27%**, but the supplied production orders still contain approximately **A$5.41M** of standard-cost scrap exposure and **2,965.1 hours** of recorded downtime. Root-cause analysis therefore focuses on product, process step, and downtime reason rather than yield alone.
-
-### 5. Quality performance needs both event-level and quantity-level interpretation
-
-The project separates the **30.04% inspection failure rate** from the **4.15% unit defect rate**. This prevents a high number of failed inspection events from being incorrectly interpreted as the same thing as the percentage of physical units defective.
-
-### 6. Procurement compliance is a measurable control issue
-
-Approximately **75.06%** of PO lines are flagged as contract compliant. Because purchase orders are denominated in multiple currencies, spend is analysed by currency or only aggregated after explicit FX treatment.
+> Some financial measures are **exposure estimates**, not booked accounting losses. Procurement currencies are also kept separate unless an FX conversion is explicitly applied.
 
 ---
 
-## Root-Cause Analysis
+# Key Findings
 
-Chapter 11 moves beyond KPI reporting and asks **why** poor performance is occurring.
+## 1. Customer Fulfilment Is the Biggest Overall Problem
 
-The SQL investigates root causes across:
+The project produced a **64.13% fill rate** and a **65.89% late-delivery rate**.
 
-- stockouts,
-- inventory / overstock,
-- forecast performance,
-- procurement and purchase-price variance,
-- supplier performance,
-- purchase-order execution,
-- customer fulfilment,
-- warehouse operations,
-- production,
-- quality,
-- logistics,
-- returns,
-- and end-to-end bottlenecks.
+That suggests customer-service problems are not limited to one part of the supply chain.
 
-The analysis also compares **good vs poor-performing groups** and separates **symptoms from plausible causes**.
+The root cause could sit in:
 
-Example analytical chain:
+- inventory
+- suppliers
+- production
+- warehousing
+- logistics
+
+or a combination of them.
+
+This is why the analysis follows poor customer fulfilment back through the rest of the supply chain instead of assuming that late delivery is only a transport problem.
+
+---
+
+## 2. Single-Source Products Need Attention
+
+The dataset contains **33 single-source products**.
+
+Every one of those products recorded at least one stockout snapshot.
+
+This does not prove that single sourcing caused the stockout, but it identifies a clear group for further review.
+
+Possible questions include:
+
+- Is there an alternative supplier?
+- Is safety stock high enough?
+- Is supplier lead time reliable?
+- Is demand more volatile than expected?
+
+---
+
+## 3. Replenishment Levels Are Frequently Under Pressure
+
+Around **55.03%** of inventory snapshots were at or below reorder point.
+
+Around **26.34%** were below safety stock.
+
+That does not automatically mean every one of those observations represents a failure, but the frequency is high enough to justify product- and warehouse-level investigation.
+
+---
+
+## 4. Production Yield Is High, but Scrap Still Matters
+
+Overall production yield is **96.27%**.
+
+At first glance that looks strong.
+
+However, the remaining scrap represents approximately **A$5.41M in standard-cost exposure**, and the dataset also records **2,965.1 hours of downtime**.
+
+This is why production performance needs to be looked at from more than one angle.
+
+---
+
+## 5. Quality Needs Two Different Measures
+
+The project separates:
+
+- **Inspection Failure Rate: 30.04%**
+- **Quantity Defect Rate: 4.15%**
+
+These are not the same thing.
+
+A failed inspection event might involve only a small number of defective units.
+
+Keeping the two measures separate prevents the quality problem from being overstated or misunderstood.
+
+---
+
+## 6. Procurement Compliance Can Be Measured Directly
+
+Around **75.06% of purchase-order lines** are marked as contract compliant.
+
+That leaves roughly one-quarter outside the compliance flag.
+
+Because procurement records use several currencies, monetary values are kept separate by currency unless FX conversion is applied.
+
+---
+
+# Root-Cause Analysis
+
+The project does not stop after finding a bad KPI.
+
+The next question is:
+
+> **Why is it happening?**
+
+Root-cause analysis is performed across:
+
+- stockouts
+- excess inventory
+- forecasting
+- supplier performance
+- procurement
+- purchase-order execution
+- customer fulfilment
+- warehouse operations
+- production
+- quality
+- logistics
+- returns
+
+The analysis also compares stronger and weaker-performing groups to identify useful differences.
+
+### Example
 
 ```text
 Late Customer Delivery
         ↓
-Insufficient Shipped Quantity / Late Shipment
+Late Shipment or Incomplete Shipment
         ↓
-Inventory Shortage OR Production Delay OR Warehouse Delay
+Inventory Shortage / Production Delay / Warehouse Delay
         ↓
-Supplier / Forecast / Material / Quality / Capacity Driver
+Supplier / Forecast / Material / Quality / Capacity Issue
         ↓
-Customer-Service + Financial + Operational Impact
+Customer + Operational + Financial Impact
 ```
 
+The purpose is not to automatically label correlation as causation.
+
+It is to narrow the investigation from a broad KPI problem to a smaller set of plausible operational drivers.
+
 ---
 
-## Business-Impact Quantification
+# Business Impact
 
-Chapter 12 translates operational findings into management-relevant impact.
+The final stage translates operational issues into measures that are easier to prioritise.
 
-### Financial impact
+## Financial
 
-- procurement spend
-- purchase-price variance
-- non-compliant procurement value
-- scrap-value exposure
-- return-value exposure
-- freight cost
+- Procurement spend
+- Purchase-price variance
+- Non-compliant procurement
+- Scrap exposure
+- Return exposure
+- Freight cost
 
-### Working-capital impact
+## Working Capital
 
-- average inventory value
-- slow-moving inventory exposure
-- dead-stock exposure
-- over-forecast inventory exposure
+- Average inventory value
+- Slow-moving inventory
+- Dead stock
+- Over-forecast inventory
 
-### Revenue / customer impact
+## Customer Impact
 
-- backorder quantity
-- backorder-value proxy
-- orders affected by lateness
-- orders affected by returns
+- Backorder quantity
+- Backorder value proxy
+- Late orders
+- Orders affected by returns
 
-### Service-level impact
+## Service
 
-- late-delivery rate
-- average days late
-- fill-rate impact
+- Late-delivery rate
+- Average days late
+- Fill rate
 - SLA breaches
-- perfect-order loss
+- Perfect orders
 
-### Productivity & capacity impact
+## Productivity & Capacity
 
-- warehouse productivity
-- pick-error impact
-- downtime
-- scrap
-- production-output loss
-- material-shortage exposure
+- Warehouse productivity
+- Pick errors
+- Downtime
+- Scrap
+- Production output loss
+- Material shortage
 
-### Risk impact
+## Risk
 
-- single-source exposure
-- single-source + stockout exposure
-- supplier-delivery risk
-- forecast risk
-- quality risk
-- customer-service risk
-- operational materiality
+- Single-source products
+- Single-source products with stockouts
+- Supplier delivery problems
+- Forecast risk
+- Quality risk
+- Customer-service risk
 
 ---
 
-## SQL Techniques Demonstrated
+# SQL Techniques Used
 
-The project intentionally relies on repeatable analyst-level SQL rather than unnecessary database engineering.
+The project mainly uses standard analyst-level SQL applied across a large relational dataset.
 
 ```sql
 SELECT
 WHERE
 ORDER BY
 DISTINCT
+
 GROUP BY
 HAVING
 
@@ -501,6 +577,7 @@ MIN()
 MAX()
 
 CASE
+
 DATEDIFF()
 YEAR()
 MONTH()
@@ -515,58 +592,55 @@ NOT EXISTS
 
 CTEs
 
-Window functions
+Window Functions
 PARTITION BY
 ORDER BY ... OVER()
 
-NULL handling
 NULLIF()
 
 BULK INSERT
+
 INFORMATION_SCHEMA
 ```
 
-### Analytical SQL capabilities demonstrated
+The important part was not using complicated SQL for its own sake.
 
-- multi-table business analysis
-- aggregation at controlled grain
-- conditional metrics
-- denominator-safe percentages
-- exception classification
-- ranked analysis
-- reusable CTE pipelines
-- reconciliation queries
-- source-to-target validation
-- dimensional relationship checks
-- one-to-many join control
-- operational KPI design
-- root-cause investigation
-- financial-impact proxies
+The SQL was used to solve practical problems such as:
+
+- joining operational tables safely
+- calculating KPIs
+- ranking exceptions
+- finding outliers
+- checking reconciliations
+- identifying missing relationships
+- comparing business groups
+- tracing operational problems
+- estimating financial exposure
 
 ---
 
-## Important Analytical Rules
+# Analytical Rules Used
 
-Several rules are enforced throughout the project:
+A few rules were followed throughout the project:
 
-1. **Do not mix currencies without conversion.**
-2. **Do not combine forecast versions without a defined business rule.**
-3. **Do not treat every NULL as bad data.**
-4. **Do not convert legitimate negative stock movements to positive values.**
-5. **Do not sum shipment-level freight after multiplying shipments through a line-level join.**
+1. **Do not combine currencies without converting them.**
+2. **Do not mix forecast versions without defining which version is being analysed.**
+3. **Do not assume every NULL is an error.**
+4. **Do not turn valid negative inventory movements into positive values.**
+5. **Do not sum shipment-level freight after joining it to shipment lines.**
 6. **Define the denominator before calculating a percentage KPI.**
-7. **Validate table grain before joining.**
-8. **Label cost proxies as proxies rather than accounting losses.**
-9. **Preserve original source values long enough to reconcile transformations.**
+7. **Check table grain before joining.**
+8. **Call financial proxies proxies, not realised losses.**
+9. **Keep the original source data available for reconciliation.**
 
-These controls are as important to the project as the KPI calculations themselves.
+These checks are important because a technically valid SQL query can still produce the wrong business answer if the underlying grain or definition is wrong.
 
 ---
 
-## Repository Structure
+# Repository Structure
 
 ```text
-SCIS-Supply-Chain-Analytics/
+SCIS-Supply-Chain-Intelligence-System-Portfolio-7/
 │
 ├── README.md
 ├── SCIS_Supply_Chain_Analysis.sql
@@ -601,90 +675,121 @@ SCIS-Supply-Chain-Analytics/
 
 ---
 
-## Running the Project
+# Running the Project
 
-### Requirements
+## Requirements
 
 - Microsoft SQL Server
-- SQL Server Management Studio (SSMS)
-- Local access to the source CSV files
+- SQL Server Management Studio
+- Local access to the CSV files
 
-### Steps
+## Steps
 
 1. Create or select the `SCIS` database.
-2. Create staging and final tables matching the supplied CSV structures.
-3. Place the CSV files in a directory readable by the SQL Server service.
-4. Update the `BULK INSERT` paths in the SQL file, for example:
+2. Create the required staging and final tables.
+3. Place the CSV files in a location that SQL Server can access.
+4. Update the `BULK INSERT` file paths.
+
+Example:
 
 ```sql
 FROM 'C:\SCIS_DATA\products.csv'
 ```
 
-5. Execute the project sequentially from **Chapter 3 through Chapter 12**.
-6. Review validation results before relying on downstream KPI outputs.
+5. Run the SQL project from **Chapter 3 through Chapter 12**.
+6. Review the validation results before relying on the KPI outputs.
 
-### Current repository prerequisite
+---
 
-The supplied main SQL script begins at **Chapter 3 — Extract** and assumes the staging/final table structures have already been created from the source schemas.
+## Current Setup Note
 
-For a fully one-click reproducible repository, a future enhancement would be to add a dedicated:
+The main SQL script starts at **Chapter 3 — Extract**.
+
+It assumes that the staging and final table structures have already been created.
+
+A future improvement would be to add a separate:
 
 ```text
 01_schema_setup.sql
 ```
 
-containing the `CREATE DATABASE`, schema, and `CREATE TABLE` statements.
+containing:
+
+- `CREATE DATABASE`
+- `CREATE SCHEMA`
+- `CREATE TABLE`
+
+statements.
 
 ---
 
-## Assumptions & Limitations
+# Assumptions & Limitations
 
-- The project uses the business definitions documented inside the SQL script; alternative organisations may define the same KPI differently.
-- Procurement records contain multiple currencies. Values are not treated as a single monetary total unless explicitly converted.
-- Forecast versions remain analytically distinct.
-- Negative stock movements can represent legitimate outbound activity.
-- Cost-based scrap and return measures use **standard cost** and are exposure proxies rather than final realised accounting losses.
-- Some raw-source anomalies are intentionally surfaced for investigation rather than automatically corrected.
-- The current repository focuses on the SQL analytical workflow; a BI/dashboard layer can be added separately.
+- KPI definitions follow the business rules documented in the SQL script.
+- Another organisation may define some KPIs differently.
+- Procurement data contains several currencies.
+- Monetary values are not combined unless FX conversion is applied.
+- Forecast versions remain separate.
+- Negative stock movements can represent valid outbound activity.
+- Scrap and return values use standard cost and should be treated as exposure estimates.
+- Some source-data problems are intentionally flagged rather than automatically corrected.
+- The current repository focuses on SQL analysis rather than a Power BI dashboard.
 
 ---
 
-## What This Project Demonstrates
+# What This Project Demonstrates
 
-This project demonstrates the ability to move from **raw operational data to management-level analysis** while maintaining control over data quality, table grain, business definitions, and analytical assumptions.
+This project shows my ability to take a large group of connected operational datasets and work through them from raw data to business analysis.
 
-The strongest skills demonstrated are:
+The main skills demonstrated are:
 
 - SQL-based ETL
 - relational data modelling
-- data-quality investigation
+- data-quality checks
 - reconciliation
-- supply-chain analytics
-- KPI design
+- table-grain control
+- supply chain analysis
+- KPI development
 - root-cause analysis
-- financial and operational impact analysis
-- risk identification
-- business-oriented analytical communication
+- operational risk analysis
+- business-impact estimation
+
+More importantly, the project focuses on **getting the business logic right before trusting the number**.
+
+A KPI is only useful if:
+
+- the tables were joined correctly
+- the denominator makes sense
+- the data grain is understood
+- and the result can be explained in business terms
 
 ---
 
-## Tools
+# Project Status
 
-**Microsoft SQL Server · SQL Server Management Studio (SSMS) · SQL · CSV**
-
----
-
-## Project Status
-
-
-- [x] Extract
-- [x] Transform
-- [x] Load
+- [x] Extract data
+- [x] Transform and clean
+- [x] Load final tables
 - [x] Validate and reconcile
-- [x] Model
-- [x] Explore
-- [x] Analyse supply-chain performance
+- [x] Document data model
+- [x] Perform exploratory analysis
+- [x] Analyse supply chain performance
 - [x] Develop KPIs
 - [x] Perform root-cause analysis
 - [x] Quantify business impact
 
+---
+
+# Tools
+
+**Microsoft SQL Server · SQL Server Management Studio · T-SQL · CSV**
+
+---
+
+# Author
+
+**Shah Tahsin**  
+Business Data Analyst | SQL · Power BI · Python
+
+[GitHub](https://github.com/shababtahsin)
+````
