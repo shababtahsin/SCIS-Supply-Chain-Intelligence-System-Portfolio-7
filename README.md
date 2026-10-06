@@ -1,4 +1,4 @@
-````markdown
+
 # Southern Cross Industrial Supply (SCIS) — Supply Chain Intelligence System
 
 ### SQL Server · Supply Chain Analytics · KPI Development · Root-Cause Analysis
