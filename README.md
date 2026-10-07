@@ -780,6 +780,13 @@ A KPI is only useful if:
 
 ---
 
+### 🛠️ Key Technical Challenge
+
+One of the biggest technical issues was a **data-grain mismatch across shipment, purchase-order, inventory and product-level tables**, which created a risk of duplicated values after joins.
+
+I corrected this by defining the **grain and join keys for each table before combining them**, then validating row counts and totals after every join.
+
+I also kept **header-level measures such as freight separate from line-level measures**, preventing double counting in the final analysis.
 # Tools
 
 **Microsoft SQL Server · SQL Server Management Studio · T-SQL · CSV**
